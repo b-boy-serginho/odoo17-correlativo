@@ -19,8 +19,8 @@
     ],
     'assets': {
         'point_of_sale._assets_pos': [
-            'custom_pos_receipt_sequence/static/src/**/*',
-            # 'custom_pos_receipt_sequence/static/src/js/new_sequence.js',
+            # 'custom_pos_receipt_sequence/static/src/**/*',
+            'custom_pos_receipt_sequence/static/src/js/new_sequence.js',
         ],
     },
     'installable': True,

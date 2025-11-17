@@ -1,33 +1,23 @@
-/** @odoo-module **/
-
+/** @odoo-module */
 import { patch } from "@web/core/utils/patch";
 import { Order } from "@point_of_sale/app/store/models";
+import { PosStore } from "@point_of_sale/app/store/pos_store";
 
 let dailyCounterSession = 0;
 
-/**
- * Parche para Order (POS 17, OWL 2)
- *
- * - Mantiene daily_counter en memoria local
- * - Lo envía al servidor al exportar
- * - Lo imprime en el recibo
- * - NO toca setup() ni PosStore (prohibido por Owl)
- */
-
 patch(Order.prototype, {
-    
+    setup(_defaultObj, options) {
+        super.setup(...arguments);
+        this.daily_counter = null;
+    },
+
     init_from_JSON(json) {
         super.init_from_JSON(...arguments);
-
-        // Si viene del servidor → usarlo
-        if ("daily_counter" in json) {
-            this.daily_counter = json.daily_counter || null;
-        } 
-        // Si viene en server_data
-        else if (json.server_data && json.server_data.daily_counter) {
-            this.daily_counter = json.server_data.daily_counter || null;
-        } 
-        else {
+        if ('daily_counter' in json) {
+            this.daily_counter = json.daily_counter ? json.daily_counter - 1 : null;
+        } else if (json.server_data && json.server_data.daily_counter) {
+            this.daily_counter = json.server_data.daily_counter ? json.server_data.daily_counter - 1 : null;
+        } else {
             this.daily_counter = null;
         }
     },
@@ -39,28 +29,46 @@ patch(Order.prototype, {
     },
 
     export_for_printing() {
-        const data = super.export_for_printing(...arguments);
-
-        // Si aún no tiene contador → asignar localmente
-        if (!this.daily_counter) {
+        const result = super.export_for_printing(...arguments);
+        
+        // Si no tiene daily_counter, asignarlo localmente AHORA
+        if (!this.daily_counter || this.daily_counter === 0) {
             dailyCounterSession++;
             this.daily_counter = dailyCounterSession;
+            console.log('Asignado daily_counter local al recibo:', this.daily_counter);
         }
-
-        // Enviar al XML
-        data.daily_counter = this.daily_counter;
-        data.name = String(this.daily_counter);
-        return data;
-    },
+        
+        result.daily_counter = this.daily_counter;
+        console.log('Print - daily_counter:', this.daily_counter);
+        return result;
+    }
 });
 
-// Reiniciar contador al abrir sesión POS
-import { PosStore } from "@point_of_sale/app/store/pos_store";
-
 patch(PosStore.prototype, {
-    async _load_pos_data() {
-        const res = await super._load_pos_data(...arguments);
-        dailyCounterSession = 0; // reset por sesión
-        return res;
+    async setup() {
+        await super.setup(...arguments);
+        dailyCounterSession = 0;
     },
+
+    async _save_to_server(orders, options) {
+        const result = await super._save_to_server(...arguments);
+        
+        // Actualizar con los valores del servidor si vienen
+        if (result && Array.isArray(result)) {
+            for (let i = 0; i < result.length; i++) {
+                const serverOrderData = result[i];
+                const order = orders[i];
+                
+                if (serverOrderData && order && serverOrderData.daily_counter) {
+                    order.daily_counter = serverOrderData.daily_counter - 1;
+                    if (serverOrderData.daily_counter > dailyCounterSession) {
+                        dailyCounterSession = serverOrderData.daily_counter - 1;
+                    }
+                    console.log('Daily counter actualizado del servidor:', serverOrderData.daily_counter - 1);
+                }
+            }
+        }
+        
+        return result;
+    }
 });
