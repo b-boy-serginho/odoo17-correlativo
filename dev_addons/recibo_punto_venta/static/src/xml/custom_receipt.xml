@@ -90,9 +90,9 @@
 
                 <!-- ======= NÚMERO DE ORDEN Y FECHA ======= -->
                 <div style="text-align: center; margin-top: 10px; font-size: 11px;">
-                    <div>Order <t t-esc="props.data.name or '00001-020-0001'"/></div>
+                    <div><t t-esc="props.data.name or 'Ref. de la orden'"/></div>
                     <div style="margin-top: 5px;">
-                        <t t-esc="props.data.date_order and props.data.date_order.split('.')[0].replace('T', ' ') or '11/17/2025 15:47:40'"/>
+                        <t t-esc="(new Date()).toLocaleString()"/>
                     </div>
                 </div>
 
