@@ -11,28 +11,23 @@
 
                 <!-- ======= LOGO ======= -->
                 <div style="text-align: center; margin-bottom: 10px;">
-                    <div t-if="props.data.company and props.data.company.logo" style="margin-bottom: 8px;">
-                        <img t-att-src="props.data.company.logo" 
-                             style="max-width: 100px; height: auto;" alt="Logo"/>
+                        
+                    <div style="font-size: 16px; font-weight: bold; margin-top: 5px;">
+                        <t t-esc="props.data.company.name"/>
                     </div>
-                    <div t-if="!(props.data.company and props.data.company.logo)" 
-                         style="font-size: 14px; color: #666; margin-bottom: 8px;">
-                        Your logo
-                    </div>
-                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">
-                        <t t-esc="props.data.company and props.data.company.name or 'My Company'"/>
-                    </div>
+
                     <div style="font-size: 12px;">
-                        Tel:<t t-esc="props.data.company and props.data.company.phone or '123'"/>
+                        Tel: <t t-esc="props.data.company.phone"/>
                     </div>
                 </div>
+
 
                 <!-- ======= LÍNEA SEPARADORA ======= -->
                 <div style="border-top: 1px dashed #000; width: 50%; margin: 8px auto;"></div>
 
                 <!-- ======= ATENDIDO POR ======= -->
                 <div style="text-align: center; font-size: 12px; margin-bottom: 10px;">
-                    Served by <t t-esc="props.data.cashier or props.data.cashier_name or 'Administrator'"/>
+                    Atendido por <t t-esc="props.data.cashier or props.data.cashier_name or 'Has'"/>
                 </div>
 
                 <!-- ======= NÚMERO DIARIO (daily_counter) ======= -->
@@ -49,7 +44,7 @@
                         <div style="margin-bottom: 12px;">
 
                             <!-- NOMBRE + SUBTOTAL A LA DERECHA -->
-                            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; margin-bottom: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold; margin-bottom: 4px;">
                                 <span><t t-esc="line.productName or line.product_name"/></span>
                                 <span><t t-esc="line.price_subtotal or line.price_subtotal_incl or line.price"/></span>
                             </div>

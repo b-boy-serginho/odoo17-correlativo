@@ -39,7 +39,23 @@ patch(Order.prototype, {
         }
         
         result.daily_counter = this.daily_counter;
+        
+        // Asegurar que la información de la compañía esté disponible
+        if (this.pos && this.pos.company) {
+            result.company = {
+                name: this.pos.company.name,
+                phone: this.pos.company.phone,
+                email: this.pos.company.email,
+                vat: this.pos.company.vat,
+                street: this.pos.company.street,
+                city: this.pos.company.city,
+                country_id: this.pos.company.country_id,
+            };
+        }
+        
         console.log('Print - daily_counter:', this.daily_counter);
+        console.log('Print - company:', result.company);
+        console.log('Print - result completo:', JSON.stringify(result, null, 2));
         return result;
     }
 });
