@@ -84,7 +84,7 @@
                 </div>
 
                 <!-- ======= LÍNEA SEPARADORA ======= -->
-                <div style="border-top: 1px dashed #000; width: 100%; margin: 12px auto;"></div>
+                <!-- <div style="border-top: 1px dashed #000; width: 100%; margin: 12px auto;"></div> -->
 
                <!-- ======= TOTAL ======= -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
