@@ -43,6 +43,7 @@ patch(Order.prototype, {
         // Asegurar que la información de la compañía esté disponible
         if (this.pos && this.pos.company) {
             result.company = {
+                id: this.pos.company.id,
                 name: this.pos.company.name,
                 phone: this.pos.company.phone,
                 email: this.pos.company.email,
@@ -50,7 +51,39 @@ patch(Order.prototype, {
                 street: this.pos.company.street,
                 city: this.pos.company.city,
                 country_id: this.pos.company.country_id,
+                partner_id: this.pos.company.partner_id,
             };
+        }
+        
+        // Agregar información del cliente (partner_id)
+        if (this.partner) {
+            result.client = {
+                id: this.partner.id,
+                name: this.partner.name,
+                phone: this.partner.phone,
+                email: this.partner.email,
+                vat: this.partner.vat,
+            };
+        }
+        
+        // Formatear totales con 2 decimales
+        if (result.total_with_tax) {
+            result.total_with_tax = parseFloat(result.total_with_tax).toFixed(2);
+        }
+        if (result.total_paid) {
+            result.total_paid = parseFloat(result.total_paid).toFixed(2);
+        }
+        if (result.total) {
+            result.total = parseFloat(result.total).toFixed(2);
+        }
+        
+        // Formatear montos de pago con 2 decimales
+        if (result.paymentlines) {
+            result.paymentlines.forEach(payment => {
+                if (payment.amount) {
+                    payment.amount = parseFloat(payment.amount).toFixed(2);
+                }
+            });
         }
         
         console.log('Print - daily_counter:', this.daily_counter);
