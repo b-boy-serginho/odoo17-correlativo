@@ -20,20 +20,17 @@ class PosOrder(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create para asignar daily_counter al momento de crear"""
+        """Override create para asignar daily_counter agrupando por mes"""
+        # --- Lógica diaria original (comentada a petición) ---
+        """
         today = fields.Date.today()
         company_id = self.env.company.id
-        
-        # Asignar daily_counter a cada orden antes de crearla
         for vals in vals_list:
-            # Solo asignar si no viene ya con un daily_counter
             if 'daily_counter' not in vals or not vals.get('daily_counter'):
-                # Buscar o crear el registro de secuencia para hoy
                 sequence_record = self.env['pos.daily.receipt.sequence'].search([
                     ('date', '=', today),
                     ('company_id', '=', company_id)
                 ], limit=1)
-                
                 if sequence_record:
                     next_number = sequence_record.last_number + 1
                     sequence_record.last_number = next_number
@@ -44,11 +41,41 @@ class PosOrder(models.Model):
                         'company_id': company_id,
                         'last_number': next_number
                     })
-                
                 vals['daily_counter'] = next_number
                 vals['tracking_number'] = str(next_number)
-                _logger.info("Asignado daily_counter %s y tracking_number en create", next_number)
-        
+        """
+
+        company_id = self.env.company.id
+        today = fields.Date.context_today(self)
+        month_start = today.replace(day=1)
+
+        # Asignar daily_counter (ahora mensual) a cada orden antes de crearla
+        for vals in vals_list:
+            if 'daily_counter' not in vals or not vals.get('daily_counter'):
+                sequence_record = self.env['pos.daily.receipt.sequence'].search([
+                    ('date', '=', month_start),
+                    ('company_id', '=', company_id)
+                ], limit=1)
+
+                if sequence_record:
+                    next_number = sequence_record.last_number + 1
+                    sequence_record.last_number = next_number
+                else:
+                    next_number = 1
+                    self.env['pos.daily.receipt.sequence'].create({
+                        'date': month_start,
+                        'company_id': company_id,
+                        'last_number': next_number
+                    })
+
+                vals['daily_counter'] = next_number
+                vals['tracking_number'] = str(next_number)
+                _logger.info(
+                    "Asignado daily_counter mensual %s (mes %s) y tracking_number en create",
+                    next_number,
+                    month_start
+                )
+
         return super(PosOrder, self).create(vals_list)
 
     @api.model
