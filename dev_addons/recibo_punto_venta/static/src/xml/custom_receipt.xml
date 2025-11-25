@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="new_pos_invoice_appexbo" xml:space="preserve">
+    <t t-name="point_of_sale.OrderReceipt"
+       t-inherit="point_of_sale.OrderReceipt"
+       t-inherit-mode="extension">
+
+        <!-- REEMPLAZA TODO EL CONTENIDO -->
+        <xpath expr="." position="replace">
+
+            <div class="pos-receipt" style="width: 302px !important; font-family: 'Arial', sans-serif; color: #000; padding: 10px; box-sizing: border-box; margin: 0; display: block;">
+
+                <!-- ======= LOGO ======= -->
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <!-- Logo de la compañía -->
+                    <t t-if="props.data.company and props.data.company.id">
+                        <img t-att-src="'/web/image/res.company/' + props.data.company.id + '/logo'" 
+                            style="max-height: 200px; max-width: 200px; margin-bottom: 10px;" 
+                            alt="Company Logo"/>
+
+                    </t>
+                        
+                    <!-- Nombre del Partner (nombre legal de la compañía) -->
+                    <t t-if="props.data.company.partner_id and props.data.company.partner_id[1]">
+                        <div style="font-size: 11px; margin-top: 5px;">
+                            <t t-esc="props.data.company.partner_id[1]"/>
+                        </div>
+                    </t>
+
+                    <div style="font-size: 11px; margin-top: 3px;">
+                        Tel: <t t-esc="props.data.company.phone"/>
+                    </div>
+                    
+                    <!-- NIT de la compañía -->
+                    <t t-if="props.data.company.vat">
+                        <div style="font-size: 11px;">
+                            Número de identificación fiscal: <t t-esc="props.data.company.vat"/>
+                        </div>
+                    </t>
+                    
+                    <t t-if="props.data.company.email">
+                        <div style="font-size: 11px;">
+                            <t t-esc="props.data.company.email"/>
+                        </div>
+                    </t>
+                </div>
+
+
+                <!-- ======= LÍNEA SEPARADORA ======= -->
+                <div style="border-top: 1px dashed #000; width: 50%; margin: 8px auto;"></div>
+
+                <!-- ======= ATENDIDO POR ======= -->
+                <div style="text-align: center; font-size: 11px; margin-bottom: 10px;">
+                    Atendido por <t t-esc="props.data.cashier or props.data.cashier_name or 'Has'"/>
+                </div>
+
+                <!-- ======= NÚMERO DIARIO (daily_counter) ======= -->
+                <div style="text-align: center; margin: 15px 0 30px 0;">
+                    <div style="font-size: 24px; font-weight: bold; line-height: 1.2;">
+                        <t t-esc="props.data.daily_counter or (receipt and receipt.daily_counter) or '0'"/>
+                    </div>
+                </div>
+                
+                <!-- ======= DETALLE DE PRODUCTOS ======= -->
+                <div style="margin: 30px 0;">
+                    <t t-foreach="props.data.orderlines" t-as="line" t-key="line_index">
+
+                        <div style="margin-bottom: 12px;">
+
+                            <!-- NOMBRE + SUBTOTAL A LA DERECHA -->
+                            <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold; margin-bottom: 4px;">
+                                <span style="text-transform: uppercase;"><t t-esc="line.productName or line.product_name"/></span>
+                                <span><t t-esc="line.price_subtotal or line.price_subtotal_incl or line.price"/></span>
+                            </div>
+
+                            <!-- CANTIDAD × PRECIO UNITARIO -->
+                            <div style="font-size: 13px; color: #555; margin-bottom: 4px; margin-left: 5px;">
+                                <span style = "font-weight: bold; color: #000000ff;"><t t-esc="line.qty or line.quantity"/> </span> Unidades × 
+                                <t t-esc="line.unitPrice or line.unit_price or line.price_unit"/> / Unidades
+                            </div>
+
+                        </div>
+
+                    </t>
+                </div>
+
+                <!-- ======= LÍNEA SEPARADORA ======= -->
+                <!-- <div style="border-top: 1px dashed #000; width: 100%; margin: 12px auto;"></div> -->
+
+               <!-- ======= TOTAL ======= -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
+                    <div style="font-size: 20px; flex: 1; text-align: center;">TOTAL</div>
+                    <div style=" font-size: 19px; text-align: right;">
+                        <t t-esc="props.data.total_with_tax or props.data.total_paid or props.data.total or '0.00'"/> Bs.
+                    </div>
+                </div>
+
+                <!-- ======= MÉTODO DE PAGO Y CLIENTE ======= -->
+                <div>
+                    <t t-if="props.data.paymentlines" t-foreach="props.data.paymentlines" t-as="payment" t-key="payment_index">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+                            <span><t t-esc="payment.name or payment.payment_method_name or 'Efectivo'"/></span>
+                            <span style="text-align: right;"><t t-esc="payment.amount or '0.00'"/></span>
+                        </div>
+                    </t>
+                    
+                    <!-- Cliente debajo del método de pago -->
+                    <t t-if="props.data.client and props.data.client.name">
+                        <div style="font-size: 12px; margin-top: 8px;">
+                            <span>Cliente</span>
+                            <span style="float: right;"><t t-esc="props.data.client.name"/></span>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- ======= POWERED BY ODOO ======= -->
+                <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #666;">
+                    Con la tecnología de Odoo
+                </div>
+
+                <!-- ======= NÚMERO DE ORDEN Y FECHA ======= -->
+                <div style="text-align: center; margin-top: 10px; font-size: 11px;">
+                    <div><t t-esc="props.data.name or 'Ref. de la orden'"/></div>
+                    <div style="margin-top: 5px;">
+                        <t t-esc="(new Date()).toLocaleString()"/>
+                    </div>
+                </div>
+
+            </div>
+        </xpath>
+    </t>
+</templates>
